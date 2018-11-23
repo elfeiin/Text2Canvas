@@ -28,4 +28,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * Thanks so much to StackExchange
-* Inspired by David Morgan-Marr's Piet
+* Inspired by David Morgan-Mar's Piet
