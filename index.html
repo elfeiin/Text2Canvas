@@ -1,0 +1,593 @@
+<!DOCTYPE HTML>
+<html onkeydown='okd(event);'>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Text2Canvas</title>
+    <style>
+      * {
+        margin: 0px;
+        position: fixed;
+        font-family: 'Lucida Console', Monaco, monospace;
+        color: black;
+      }
+      #canvas {
+        width: 75%;
+        height: 100%;
+        top: 0px;
+      }
+      #controls {
+        height: 100%;
+        left: 0px;
+        top: 0px;
+      }
+      #ta {
+        top: 32px;
+        left: 0px;
+        resize: none;
+        border-top: 1px solid black;
+      }
+      .topbutton {
+        width: 14px;
+        height: 9px;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        background: white;
+        border: none;
+        border-left: 1px solid black;
+        border-bottom: 1px solid #0f0;
+        background: #00f;
+      }
+      .bottombutton {
+        width: 14px;
+        height: 9px;
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        background: white;
+        border: none;
+        border-left: 1px solid black;
+        border-top: 1px solid #0f0;
+        background: #f00;
+      }
+      .topbutton:hover {
+        background: #0ff;
+      }
+      .bottombutton:hover {
+        background: #ff0;
+      }
+      .cb {
+        background: #fff;
+        width: inherit;
+        height: inherit;
+        display: flex;
+        align-items: center;
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+      }
+      .cb:hover {
+        background: #ccc;
+        cursor: default;
+      }
+      #spoon {
+        display: none;
+      }
+      #savior {
+        right: 0px;
+        top: 0px;
+      }
+      #helptray {
+        right: 0px;
+        bottom: 0px;
+      }
+      .dl {
+        position: static;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='controls'>
+          <div class='inputtray'><textarea id='c0' class='custominput'>0</textarea><p class='topbutton'></p><p class='bottombutton'></p></div>
+          <div class='inputtray'><textarea id='c1' class='custominput'>0</textarea><p class='topbutton'></p><p class='bottombutton'></p></div>
+          <div class='inputtray'><textarea id='c2' class='custominput'>32</textarea><p class='topbutton'></p><p class='bottombutton'></p></div>
+          <div class='inputtray'><textarea id='c3' class='custominput'>32</textarea><p class='topbutton'></p><p class='bottombutton'></p></div>
+          <div class='inputtray'><textarea id='zoom' class='custominput'>1</textarea><p class='topbutton'></p><p class='bottombutton'></p></div>
+          <textarea id='ta'></textarea>
+    </div>
+    <canvas id='canvas'></canvas>
+    <p id='thep'>T2C Symbols: rygm[]0123456789#abcdef w.ld&gt;&lt;^v*/</p>
+    <div id='savior'>
+      <a class='dl' id='download' href='' target='_blank'>save</a>
+      <select class='dl' id='selecty'>
+        <option value="bmp">BMP</option>
+        <option value="png">PNG</option>
+      </select>
+    </div>
+    <div id='helptray'>
+      <a class='dl' href='./documentation.html' target='_blank'>help</a>
+    </div>
+    <div id='spoon'>
+        <canvas class='dl' id='spoony'></canvas>
+    </div>
+    <script>
+      //Custom input for cross browser capability
+      //Okay so I couldn't get the stupid spinner buttons to be vanilla natural cross browser so I just wrote my own spinner functionality but you can use whatever you want. hmm! >:(
+      //(I was very upset)
+      document.addEventListener("DOMContentLoaded", function(event) {
+        function checkInput(e) {
+          let notnums = '!@#$%^&*()_+=QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?qwertyuiop[]\\asdfghjkl;\'zxcvbnm,/';
+          if ((notnums.match(e.key)||e.keyCode==13)&&!e.ctrlKey&&!e.shiftKey) {
+            e.preventDefault();
+          }
+        }
+        var it = document.getElementsByClassName('inputtray');
+        for (a=0;a<it.length;a++) {
+          let ci = it[a];
+          ci.style.width = (document.getElementById('ta').clientWidth/5)-2+'px';
+          ci.style.height = '20px';
+          ci.style.position = 'inline';
+          ci.style.top = '8px';
+          ci.style.left = (ci.clientWidth*a)+2+'px';
+          ci.style.background = 'white';
+          ci.style.border = '1px solid black';
+          ci.style.padding = 'none';
+        }
+        it = document.getElementsByClassName('custominput');
+        for (a=0;a<it.length;a++) {
+          let ci = it[a];
+          ci.style.resize = 'none';
+          ci.style.width = (ci.parentElement.clientWidth-15)+'px';
+          ci.style.height = '20px';
+          ci.style.position = 'absolute';
+          ci.style.left = '0px';
+          ci.style.background = 'white';
+          ci.style.border = 'none';
+          ci.changing = false;
+          ci.addEventListener('keydown', checkInput);
+        }
+        it = document.getElementsByClassName('topbutton');
+        for (a=0;a<it.length;a++) {
+          let ci = it[a];
+          ci.onmousedown = function() {
+            let cp = ci.parentElement.children[0];
+            cp.changing = true;
+            cp.value = Number(cp.value)+1;
+            setTimeout(function() {  if (cp.changing) { let d = setInterval(function() {  cp.value = Number(cp.value)+1;  if (!cp.changing) {  clearInterval(d);  }  }, 40)  }  }, 150);
+          };
+          ci.onmouseup = function() { ci.parentElement.children[0].changing = false; };
+          document.onmouseup = function() { ci.parentElement.children[0].changing = false; };
+        }
+        it = document.getElementsByClassName('bottombutton');
+        for (a=0;a<it.length;a++) {
+          let ci = it[a];
+          ci.onmousedown = function() {
+            let cp = ci.parentElement.children[0];
+            cp.changing = true;
+            cp.value = Number(cp.value)-1;
+            setTimeout(function() {  if (cp.changing) { let d = setInterval(function() {  cp.value = Number(cp.value)-1;  if (!cp.changing) {  clearInterval(d);  }  }, 40)  }  }, 150);
+          };
+          ci.onmouseup = function() { ci.parentElement.children[0].changing = false; };
+          document.onmouseup = function() { ci.parentElement.children[0].changing = false; };
+        }
+      });
+    </script>
+    <script>
+      //Editor Main
+
+      //Various constants, basically just a js-html interface if you think about it.
+      const canvas = document.getElementById('canvas'),
+      ctx = canvas.getContext('2d'),
+      ta = document.getElementById('ta'),
+      cn1 = document.getElementById('controls'),
+      c0 = document.getElementById('c0'),
+      c1 = document.getElementById('c1'),
+      c2 = document.getElementById('c2'),
+      c3 = document.getElementById('c3'),
+      c4 = document.getElementById('zoom'),
+      spoon = document.getElementById('spoon'),
+      spoony = document.getElementById('spoony'),
+      spoontext = spoony.getContext('2d'),
+      sel = document.getElementById("selecty"),
+      download = document.getElementById('download'),
+      thep = document.getElementById('thep');
+
+      var ht = canvas.clientHeight,
+      wt = canvas.clientWidth,
+
+      //Huh. I've never seen a 'pointer object' before. I thought it'd be bigger..... Oh well! Less overhead!
+      p = {x: 0, y: 0},
+
+      //Omigoc it's the canvas zoom, position and dimension object! wow!
+      c = {
+        xp: 0,
+        yp: 0,
+        xd: 32,
+        yd: 32,
+        z: 1
+      },
+
+      //Various variables.                                                                    ...xD yes
+      canvasdown = false,
+      makelight = false,
+      makedark = false,
+      thenumber = '',
+      thesharp = '',
+      dosharps = false,
+      comment = 0,
+
+      //My very easy method for adding commands. :) Proud of this.
+      com = {
+        r: 'put("#f00");',
+        y: 'put("#ff0");',
+        g: 'put("#0f0");',
+        c: 'if (dosharps) { managestrings("c"); } else { put("#0ff"); };',
+        b: 'if (dosharps) { managestrings("b"); } else { put("#00f"); };',
+        m: 'put("#f0f");',
+        '.': 'put("#000");',
+        w: 'put("#fff");',
+        ' ': 'movep(1,0);',
+        l: 'makelight = true;',
+        d: 'if (dosharps) { managestrings("d"); } else { makedark = true; };',
+        '0': 'managestrings("0");',
+        '1': 'managestrings("1");',
+        '2': 'managestrings("2");',
+        '3': 'managestrings("3");',
+        '4': 'managestrings("4");',
+        '5': 'managestrings("5");',
+        '6': 'managestrings("6");',
+        '7': 'managestrings("7");',
+        '8': 'managestrings("8");',
+        '9': 'managestrings("9");',
+        a: 'managestrings("a");',
+        e: 'managestrings("e");',
+        f: 'managestrings("f");',
+        '#': 'thesharp = "#"; dosharps = true;',
+        '<': 'movep(-1,0);',
+        '>': 'movep(1,0);',
+        '^': 'movep(0,-1);',
+        'v': 'movep(0,1);',
+        'V': 'movep(0,1);',
+        '[': 'jump(true);',
+        ']': 'jump(false);',
+        e: 'setEnd(false)',
+        s: 'setStart(false)',
+        E: 'setEnd(true)',
+        S: 'setStart(true)',
+        '*': 'if (text[i-1]==="/") { comment = 1; };',
+        '/': 'if (text[i-1]==="*") { if (comment===1) { comment = 0; } } if (text[i-1]==="/") { if (comment===0) { comment = 2; } };',
+        '\n': 'if (comment===2) { comment = 0; } else { if (comment!==1&&text[i-2]+text[i-1]!=="*/") { p.x=0; p.y+=1; } };'
+      },
+
+      //An object that keeps track of and manages loop jumping.
+      //God knows /I/ couldn't keep track of it all. Yeesh- I mean seriously, you'd expect delete to do its job!
+      jlist = {
+        list: [],
+        add: function(){ this.list.push([i,0,Number(thenumber)||1]); },
+        remove: function(){ delete this.list[this.list.length-1]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.push(this.list[dd]) } } this.list=nl; },
+        getlast: function(){ if (this.list.length>0) { return this.list[this.list.length-1]; } else { return false } },
+        increasecount: function() { if (this.list.length>0) { this.list[this.list.length-1][1]+=1; } }
+      },
+
+      //Initializes virtual starts and ends and mouse position variables.
+      //ix and iy are initial mouse position components or old moouse positions.
+      //x and y are the current mouse position.
+      mm = {
+        ix: 0,
+        iy: 0,
+        x: 0,
+        y: 0,
+        dx: c2.value,
+        dy: c3.value,
+        vxs: 0,
+        vxe: c2.value,
+        vys: 0,
+        vye: c3.value
+      };
+
+      //Initializes various element properties.
+      cn1.style.width = ta.style.width = '486px';
+      canvas.style.left = '486px';
+      canvas.style.width = (window.innerWidth - ta.clientWidth)+'px';
+      canvas.height = ht;
+      canvas.width = wt;
+      thep.style.bottom = '0px';
+      thep.style.left = '489px';
+      document.body.style.background = 'white';
+      ta.style.height = (ht - 32) + 'px';
+
+      //Dynamically initializes mouse position variables and tells the program that the mouse is down. (well that's nice of it)
+      canvas.onmousedown = function(m) {
+        var r = canvas.getBoundingClientRect();
+        mm.ix = m.clientX - r.left;
+        mm.iy = m.clientY - r.top;
+        canvasdown = true;
+      };
+
+      //Allows dragging of the image via the mouse.
+      //Pretty nifty, right?
+      canvas.onmousemove = function(m) {
+        if (canvasdown) {
+          var r = canvas.getBoundingClientRect();
+          mm.x = m.clientX - r.left;
+          mm.y = m.clientY - r.top;
+          mm.dx = mm.x - mm.ix;
+          mm.dy = mm.y - mm.iy;
+          c0.value = Number(c0.value) + mm.dx;
+          c1.value = Number(c1.value) + mm.dy;
+          mm.ix = m.clientX - r.left;
+          mm.iy = m.clientY - r.top;
+        }
+      }
+      canvas.onmouseup = function() { canvasdown = false; };
+      canvas.onmouseleave = function() { canvasdown = false; };
+
+      //Just resets the canvas, like the actual canvas element, so that it adjusts to dynamic window sizes.
+      //Maybe someday mobile?
+      function reset() {
+        ht = canvas.clientHeight;
+        wt = canvas.clientWidth;
+        canvas.height = ht;
+        canvas.width = wt;
+        ctx.clearRect(0,0,wt,ht);
+        ctx.fillStyle = '#aaa';
+        ctx.fillRect(0,0,wt,ht);
+        ta.style.height = (ht - 32) + 'px';
+      }
+
+      //Draws the blank canvas with a black border.
+      //I'm almost sure there's a method to put the black border around the white canvas 'naturally', but I don't care.
+      //Too lazy.
+      function makebox() {
+          ctx.fillStyle = '#000';
+          ctx.fillRect(c.xp,c.yp,(c.xd*c.z)+2,(c.yd*c.z)+2);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(c.xp+1,c.yp+1,c.xd*c.z,c.yd*c.z);
+      }
+
+      //Also one of my favorites. Took a few days, believe it or not.
+      //Updates the canvas.
+      //Sets our canvas spoony so that it matches our main canvas dimensions.
+      //Copies the canvas image to spoony.
+      //Uses canvas context 'spoontext'. Spoontext.
+      //Opens a new tab or window containing the user's beloved picture. (Yay!)
+      //Actually, this just sets the <a> tag's href to the image, but you get the point.
+      function save() {
+        update();
+        spoony.style.width = c.xd + 'px';
+        spoony.style.height = c.yd + 'px';
+        spoony.width = c.xd;
+        spoony.height = c.yd;
+        var d = ctx.getImageData(c.xp+1,c.yp+1,c.xp+(c.xd*c.z),c.yp+(c.yd*c.z));
+        spoontext.putImageData(d,0,0);
+        download.href = spoony.toDataURL('image/'+sel.options[sel.selectedIndex].value,1);
+      }
+      download.onmouseover = function() { save(); };
+      sel.onchange = function() { save(); };
+
+      //Onkeydown. Used to do something. Deprecated.
+      //Maybe it can be used to optimize by making a loop unnecessary?
+      function okd(e) {
+      }
+
+      //Lightens or darkens hex color string d.
+      //Only works for hex color values using the 3 byte shorthand and hex numbers f and 0 only.
+      //It replaces any f in string d with c0 if darkening and any 0 with c0 if lightening.
+      //As for the name of the function, well I figured most colors don't particularly like to be darkened or lightened when they know they are part of a group being specifically targeted. Yeah.
+      function jumpcolor(a,b,e,d) {
+        var cc = '';
+        for (h=1;h<d.length;h++) {
+          if (d[h]==a) {
+            cc += b;
+          } else {
+            cc += e;
+          }
+        }
+        return '#' + cc;
+      }
+
+      //Sets the virtual start of the canvas. a is a boolean that dictates if setting for the x or y axis.
+      function setStart(a) {
+        var tn = Number(thenumber)||0;
+        thenumber='';
+        if (a) {
+          mm.vys = tn;
+          p.y = tn;
+        } else {
+          mm.vxs = tn;
+          p.x = tn;
+        }
+      }
+
+      //Sets the virtual end of the canvas. a is a boolean that dictates if setting for the x or y axis.
+      function setEnd(a) {
+        var tn = Number(thenumber)||0;
+        thenumber='';
+        if (a) {
+          mm.vye = c.yd - tn;
+        } else {
+          mm.vxe = c.xd - tn;
+        }
+      }
+
+      //Code retrieved from here:
+      //https://stackoverflow.com/questions/28708798/does-html5-canvas-support-hex-colors-with-alpha
+      function hex2rgba(hexa){
+        var r = parseInt(hexa.slice(1,3), 16);
+            g = parseInt(hexa.slice(3,5), 16);
+            b = parseInt(hexa.slice(5,7), 16);
+            a = parseInt(hexa.slice(7,9), 16)/255;
+        return 'rgba('+r+', '+g+', '+b+', '+a+')';
+      }
+      //End retrieved code.
+
+      //Puts pixels on the canvas. a is the color of the pixel(s) being drawn.
+      function put(a) {
+        if (a===undefined) return;
+        if (makelight) {
+          a = jumpcolor('0','c0','ff',a);
+        }
+        if (makedark) {
+          a = jumpcolor('f','c0','00',a);
+        }
+        makelight = makedark = false;
+        var tn = Number(thenumber)||1;
+        thenumber='';
+        for (t=0;t<tn;t++) {
+          checkp();
+          ctx.fillStyle = a;
+          if (a.length===9) {
+            ctx.fillStyle = hex2rgba(a);
+          }
+          ctx.fillRect((p.x*c.z)+1+c.xp,(p.y*c.z)+1+c.yp,c.z,c.z);
+          movep(1,0);
+        }
+      }
+
+      //Function to move the pointer a units left and b units down. Defaults to one if no number is specified.
+      function movep(a,b) {
+        p.x+=a*(Number(thenumber)||1);
+        p.y+=b*(Number(thenumber)||1);
+        thenumber='';
+      }
+
+      //Simple check to see if pointer is in virtual canvas bounds. vxs, vys, vxe, and vye all define virtual canvas edges.
+      function checkp() {
+        if (p.x>(mm.vxe-1)) {
+          p.x=mm.vxs;
+          p.y+=1;
+        }
+        if (p.x<mm.vxs) {
+          p.x=mm.vxs;
+          p.y-=1;
+        }
+        if (p.y>mm.vye-1) {
+          p.x=0;
+          p.y=mm.vys;
+        }
+        if (p.y<mm.vys) {
+          p.x=0;
+          p.y=mm.vye-1;
+        }
+      }
+
+      //This function controls how loops operate. a is any new loop start we want to add.
+      //After that, it checks to see if there is anything in jlist.
+      //If not, then it returns.
+      //Otherwise, it increases some number inside jl. jlist.increasecount() always increases the last element's number.
+      //If jl's count or whatever is less than the max, then it jumps the text reading pointer back to the corresponding loop command.
+      //But if not, then oh well, sucks for jl because IT GETS DELETED!!!
+      function jump(a) {
+        if (a) {
+          jlist.add();
+          thenumber = '';
+          return;
+        }
+        var jl = jlist.getlast();
+        if (!jl) return;
+        jlist.increasecount();
+        if (jl[1]<jl[2]) {
+          i = jl[0];
+          thenumber = '';
+          return;
+        }
+        jlist.remove();
+        jl = null;
+        thenumber = '';
+      }
+
+      //a is some text that belongs to either the number variable or the hex color string variable.
+      //It basically just sorts it. If dosharps is false, then it just adds a onto the end of thenumber.
+      //Otherwise it adds it onto thesharp, which is the hex color string variable.
+      //Supports 3 byte, 6 byte and 8 byte.
+      function managestrings(a) {
+        if (dosharps) {
+          thesharp += a;
+          if (Number(thenumber)===3) {
+            if (thesharp.length===4) {
+              thenumber = '';
+              put(thesharp);
+              thesharp = '';
+              dosharps = false;
+              return;
+            }
+            return;
+          }
+          if (Number(thenumber)===4) {
+            if (thesharp.length===9) {
+              thenumber = '';
+              put(thesharp);
+              thesharp = '';
+              dosharps = false;
+              return;
+            }
+            return;
+          }
+          if (thesharp.length===7) {
+            thenumber = '';
+            put(thesharp);
+            thesharp = '';
+            dosharps = false;
+          }
+        } else {
+          if (Number(a)||a==='0') {
+            thenumber += a;
+          }
+        }
+      }
+
+      //Ah this one is my favorite.
+      //See those evals down there? That was my idea.
+      //All of the commands are stored as strings in the object com.
+      //This function simply takes advantage of object indexing and evals the code that maps to whatever character is at the position i in the textarea.
+      function readtext() {
+        var text = ta.value;
+        p.x = p.y = mm.vxs = mm.vys = 0;
+        mm.vxe = c.xd;
+        mm.vye = c.yd;
+
+        for (i=0;i<text.length;i++) {
+          if (com[text[i]]!==undefined) {
+            if (comment!==0) {
+              if (text[i]==='/'||text[i]==='*'||text[i]=='\n') {
+                eval(com[text[i]]);
+              }
+              continue;
+            }
+            eval(com[text[i]]);
+          }
+        }
+
+        //Reset everything to initial between draws.
+        thenumber = '';
+        thesharp = '';
+        jlist.list = [];
+        comment = 0;
+        makelight = false;
+        makedark = false;
+        dosharps = false;
+      }
+
+      //This simply updates c, the canvas properties, using the page inputs.
+      function updatec() {
+        c.xp = Number(c0.value);
+        c.yp = Number(c1.value);
+        c.xd = Number(c2.value);
+        c.yd = Number(c3.value);
+        c.z = Number(c4.value);
+      }
+
+      //This is where it all happens. I mean, not really, but it does put it all together pretty neatly.
+      function update(a) {
+        updatec();
+        reset();
+        makebox();
+        readtext();
+      }
+
+      //W00T W00T starts the window interval to run this n00b
+      window.setInterval(update,1000/30);
+    </script>
+  </body>
+</html>
