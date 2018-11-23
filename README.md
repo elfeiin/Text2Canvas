@@ -11,7 +11,7 @@ Yeesh. Feel free to copy the program and modify it as you please.
 
 ## Getting Started
 
-Unzip the file and double-click index.html inside the folder. Look at the bottom right of the screen for 'help'.
+Double click index.html. Look at the bottom right corner of the screen for 'help'.
 
 ### Prerequisites
 
