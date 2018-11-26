@@ -326,7 +326,7 @@
           mm.iy = m.clientY - r.top;
         }
       }
-      canvas.onmouseup = function() { this.listcanvasdown = false; };
+      canvas.onmouseup = function() { canvasdown = false; };
       canvas.onmouseleave = function() { canvasdown = false; };
 
       //Just resets the canvas, like the actual canvas element, so that it adjusts to dynamic window sizes.
