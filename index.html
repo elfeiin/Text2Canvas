@@ -97,7 +97,7 @@
           <textarea id='ta'></textarea>
     </div>
     <canvas id='canvas'></canvas>
-    <p id='thep'>T2C Symbols: rygm[]0123456789#abcdef w.ld&gt;&lt;^v*/</p>
+    <p id='thep'>T2C Symbols: rygm[]0123456789#abcdef w.ld&gt;&lt;^v-+*/seSE</p>
     <div id='savior'>
       <a class='dl' id='download' href='' target='_blank'>save</a>
       <select class='dl' id='selecty'>
@@ -197,7 +197,9 @@
       wt = canvas.clientWidth,
 
       //Huh. I've never seen a 'pointer object' before. I thought it'd be bigger..... Oh well! Less overhead!
-      p = {x: 0, y: 0},
+      //Canvas pointer x and y, resp.
+      p = 0,
+      P = 0,
 
       //Omigoc it's the canvas zoom, position and dimension object! wow!
       c = {
@@ -230,16 +232,20 @@
         ' ': 'movep(1,0);',
         l: 'makelight = true;',
         d: 'if (dosharps) { managestrings("d"); } else { makedark = true; };',
-        '0': 'managestrings("0");',
-        '1': 'managestrings("1");',
-        '2': 'managestrings("2");',
-        '3': 'managestrings("3");',
-        '4': 'managestrings("4");',
-        '5': 'managestrings("5");',
-        '6': 'managestrings("6");',
-        '7': 'managestrings("7");',
-        '8': 'managestrings("8");',
-        '9': 'managestrings("9");',
+        '0': 'managestrings("0",true);',
+        '1': 'managestrings("1",true);',
+        '2': 'managestrings("2",true);',
+        '3': 'managestrings("3",true);',
+        '4': 'managestrings("4",true);',
+        '5': 'managestrings("5",true);',
+        '6': 'managestrings("6",true);',
+        '7': 'managestrings("7",true);',
+        '8': 'managestrings("8",true);',
+        '9': 'managestrings("9",true);',
+        '-': 'managestrings("-",true);',
+        '+': 'managestrings("+",true);',
+        '*': 'managestrings("*",true);',
+        '/': 'managestrings("/",true);',
         a: 'managestrings("a");',
         e: 'managestrings("e");',
         f: 'managestrings("f");',
@@ -251,20 +257,21 @@
         'V': 'movep(0,1);',
         '[': 'jump(true);',
         ']': 'jump(false);',
-        e: 'setEnd(false)',
-        s: 'setStart(false)',
-        E: 'setEnd(true)',
-        S: 'setStart(true)',
-        '*': 'if (text[i-1]==="/") { comment = 1; };',
-        '/': 'if (text[i-1]==="*") { if (comment===1) { comment = 0; } } if (text[i-1]==="/") { if (comment===0) { comment = 2; } };',
-        '\n': 'if (comment===2) { comment = 0; } else { if (comment!==1&&text[i-2]+text[i-1]!=="*/") { p.x=0; p.y+=1; } };'
+        e: 'setEnd(false);',
+        s: 'setStart(false);',
+        E: 'setEnd(true);',
+        S: 'setStart(true);',
+        '{': 'if (comment===0) { comment = 1; };',
+        '}': 'comment = 0;',
+        '|': 'if (comment===0) { comment = 2; };',
+        '\n': 'if (comment===2) { comment = 0; } else { if (comment!==1&&text[i-1]!=="}") { p=mm.vxs; P+=1; } };'
       },
 
       //An object that keeps track of and manages loop jumping.
       //God knows /I/ couldn't keep track of it all. Yeesh- I mean seriously, you'd expect delete to do its job!
       jlist = {
         list: [],
-        add: function(){ this.list.push([i,0,Number(thenumber)||1]); },
+        add: function(){ this.list.push([i,0,eval(thenumber)||1]); },
         remove: function(){ delete this.list[this.list.length-1]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.push(this.list[dd]) } } this.list=nl; },
         getlast: function(){ if (this.list.length>0) { return this.list[this.list.length-1]; } else { return false } },
         increasecount: function() { if (this.list.length>0) { this.list[this.list.length-1][1]+=1; } }
@@ -389,25 +396,33 @@
 
       //Sets the virtual start of the canvas. a is a boolean that dictates if setting for the x or y axis.
       function setStart(a) {
-        var tn = Number(thenumber)||0;
-        thenumber='';
-        if (a) {
-          mm.vys = tn;
-          p.y = tn;
+        var tn;
+        if (thenumber.length>0) {
+          tn = eval(thenumber)||0;
+          thenumber='';
         } else {
-          mm.vxs = tn;
-          p.x = tn;
+          tn = a&&P||p;
+        }
+        if (a) {
+          mm.vys = P = tn;
+        } else {
+          mm.vxs = p = tn;
         }
       }
 
       //Sets the virtual end of the canvas. a is a boolean that dictates if setting for the x or y axis.
       function setEnd(a) {
-        var tn = Number(thenumber)||0;
-        thenumber='';
-        if (a) {
-          mm.vye = c.yd - tn;
+        var tn;
+        if (thenumber.length>0) {
+          tn = eval(thenumber)||0;
+          thenumber='';
         } else {
-          mm.vxe = c.xd - tn;
+          tn = a&&(P-mm.vys)||(p-mm.vxs);
+        }
+        if (a) {
+          mm.vye = P + tn;
+        } else {
+          mm.vxe = p + tn;
         }
       }
 
@@ -432,7 +447,7 @@
           a = jumpcolor('f','c0','00',a);
         }
         makelight = makedark = false;
-        var tn = Number(thenumber)||1;
+        let tn = eval(thenumber)||1;
         thenumber='';
         for (t=0;t<tn;t++) {
           checkp();
@@ -440,35 +455,35 @@
           if (a.length===9) {
             ctx.fillStyle = hex2rgba(a);
           }
-          ctx.fillRect((p.x*c.z)+1+c.xp,(p.y*c.z)+1+c.yp,c.z,c.z);
+          ctx.fillRect((p*c.z)+1+c.xp,(P*c.z)+1+c.yp,c.z,c.z);
           movep(1,0);
         }
       }
 
       //Function to move the pointer a units left and b units down. Defaults to one if no number is specified.
       function movep(a,b) {
-        p.x+=a*(Number(thenumber)||1);
-        p.y+=b*(Number(thenumber)||1);
+        p+=a*(eval(thenumber)||1);
+        P+=b*(eval(thenumber)||1);
         thenumber='';
       }
 
       //Simple check to see if pointer is in virtual canvas bounds. vxs, vys, vxe, and vye all define virtual canvas edges.
       function checkp() {
-        if (p.x>(mm.vxe-1)) {
-          p.x=mm.vxs;
-          p.y+=1;
+        if (p>(mm.vxe-1)) {
+          p=mm.vxs;
+          P+=1;
         }
-        if (p.x<mm.vxs) {
-          p.x=mm.vxs;
-          p.y-=1;
+        if (p<mm.vxs) {
+          p=mm.vxs;
+          P-=1;
         }
-        if (p.y>mm.vye-1) {
-          p.x=0;
-          p.y=mm.vys;
+        if (P>mm.vye-1) {
+          p=0;
+          P=mm.vys;
         }
-        if (p.y<mm.vys) {
-          p.x=0;
-          p.y=mm.vye-1;
+        if (P<mm.vys) {
+          p=0;
+          P=mm.vye-1;
         }
       }
 
@@ -501,10 +516,10 @@
       //It basically just sorts it. If dosharps is false, then it just adds a onto the end of thenumber.
       //Otherwise it adds it onto thesharp, which is the hex color string variable.
       //Supports 3 byte, 6 byte and 8 byte.
-      function managestrings(a) {
+      function managestrings(a,b) {
         if (dosharps) {
           thesharp += a;
-          if (Number(thenumber)===3) {
+          if (thenumber==='3') {
             if (thesharp.length===4) {
               thenumber = '';
               put(thesharp);
@@ -512,9 +527,8 @@
               dosharps = false;
               return;
             }
-            return;
           }
-          if (Number(thenumber)===4) {
+          if (thenumber==='4') {
             if (thesharp.length===9) {
               thenumber = '';
               put(thesharp);
@@ -522,18 +536,19 @@
               dosharps = false;
               return;
             }
-            return;
           }
           if (thesharp.length===7) {
             thenumber = '';
             put(thesharp);
             thesharp = '';
             dosharps = false;
+            return;
           }
-        } else {
-          if (Number(a)||a==='0') {
-            thenumber += a;
-          }
+          return;
+        }
+        if (b===true) {
+          thenumber += a;
+          return;
         }
       }
 
@@ -543,14 +558,14 @@
       //This function simply takes advantage of object indexing and evals the code that maps to whatever character is at the position i in the textarea.
       function readtext() {
         var text = ta.value;
-        p.x = p.y = mm.vxs = mm.vys = 0;
+        p = P = mm.vxs = mm.vys = 0;
         mm.vxe = c.xd;
         mm.vye = c.yd;
 
         for (i=0;i<text.length;i++) {
           if (com[text[i]]!==undefined) {
             if (comment!==0) {
-              if (text[i]==='/'||text[i]==='*'||text[i]=='\n') {
+              if (text[i]==='{'||text[i]==='}'||text[i]==='|'||text[i]=='\n') {
                 eval(com[text[i]]);
               }
               continue;

@@ -120,7 +120,7 @@
         . draws a black pixel
       </div>
       <p>
-        Tip #1: Any number before any command but # and 3# repeats that command that many times minus one. # and 3# can be repeated using [ and ], see below.<br>
+        Tip #1: Any number before any command but # and 3# repeats that command that many times minus one. # and 3# can be repeated using [ and ], see below. The math symbols -, +, * and / works as expected.<br>
         Tip #2: Commands that draw will naturally move the canvas pointer to the right, or to the left edge and down when it reaches the canvas edge.
       </p>
       <span class='section special'>
@@ -147,21 +147,20 @@
         > right<br>
         ^ up<br>
         v down<br>
-        e sets the virtual right edge of the canvas, starting from the right<br>
-        E sets the virtual bottom edge of the canvas, starting from the bottom<br>
-        s sets the virtual left edge<br>
+        e sets the virtual right edge of the canvas to the pointer's x. If there is number before, instead sets it to the virtual left edge plus that number<br>
+        s sets the virtual left edge of the canvas to the pointer's x. If there is number before, instead sets it to that number<br>
+        E sets the virtual bottom edge<br>
         S sets the virtual top edge<br>
       </div>
       <p>
-        Tip #5: Numbers work with these commands, too. Omitting a number before e, E, s or S sets it to default edge.
+        Tip #5: Numbers work with these commands, too. Putting a 0 before e, E, s or S sets it to default edge.
       </p>
       <span class='section'>
         Comments
       </span>
       <div>
-        // starts a one-line comment<br>
-        /* starts a multiline comment<br>
-        */ ends a multiline comment
+        {} contains a multiline comment<br>
+        | denotes a single line comment
       </div>
       <p>
         Tip #6: These commands are used to comment out text.
