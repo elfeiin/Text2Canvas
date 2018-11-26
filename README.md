@@ -17,9 +17,9 @@ Double click index.html. Look at the bottom right corner of the screen for 'help
 
 All you need is a web browser that can run HTML5.
 
-### Example
+### Examples
 
-Example.txt shows the functionality of most of the commands.
+example.txt shows the functionality of most of the commands.
 
 ## Authors
 
