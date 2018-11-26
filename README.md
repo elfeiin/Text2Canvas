@@ -17,6 +17,20 @@ Double click index.html. Look at the bottom right corner of the screen for 'help
 
 All you need is a web browser that can run HTML5.
 
+### Example
+
+Enter the following into the text area on the left:
+
+7e5[7.]s0S7e5[7[3#888]]21s1e0S5.32e
+0s0S
+ lr lg lb  r g b  dr dg db
+  lc ly    c y    dc dy
+   lm      m      dm
+
+21.3#888
+
+This shows the functionality of most of the commands.
+
 ## Authors
 
 * **Jared Landers**
