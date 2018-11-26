@@ -118,7 +118,7 @@
       document.addEventListener("DOMContentLoaded", function(event) {
         function checkInput(e) {
           let notnums = '!@#$%^&*()_+=QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?qwertyuiop[]\\asdfghjkl;\'zxcvbnm,/';
-          if ((notnums.match(e.key)||e.keyCode==13)&&!e.ctrlKey&&!e.shiftKey) {
+          if ((notnums.match(e.key)||e.keyCode==13)&&!e.ctrlKey&&!e.unshiftKey) {
             e.preventDefault();
           }
         }
@@ -271,8 +271,8 @@
       //God knows /I/ couldn't keep track of it all. Yeesh- I mean seriously, you'd expect delete to do its job!
       jlist = {
         list: [],
-        add: function(){ this.list.shift([i,0,numParse(thenumber)||1]); },
-        remove: function(){ delete this.list[0]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.shift(this.list[dd]) } } this.list=nl; },
+        add: function(){ this.list.unshift([i,0,numParse(thenumber)||1]); },
+        remove: function(){ delete this.list[0]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.push(this.list[dd]) } } this.list=nl; },
         increasecount: function() { if (this.list.length>0) { this.list[0][1]+=1; } }
       },
 
@@ -326,7 +326,7 @@
           mm.iy = m.clientY - r.top;
         }
       }
-      canvas.onmouseup = function() { canvasdown = false; };
+      canvas.onmouseup = function() { this.listcanvasdown = false; };
       canvas.onmouseleave = function() { canvasdown = false; };
 
       //Just resets the canvas, like the actual canvas element, so that it adjusts to dynamic window sizes.
@@ -487,7 +487,7 @@
             m.splice(i,2);
           }
         }
-        return m[0];
+        return Number(m[0]);
       }
 
       //Puts pixels on the canvas. a is the color of the pixel(s) being drawn.
@@ -552,7 +552,7 @@
           thenumber = '';
           return;
         }
-        var jl = jlist[0];
+        var jl = jlist.list[0];
         if (!jl) return;
         jlist.increasecount();
         if (jl[1]<jl[2]) {
@@ -578,8 +578,8 @@
               put(thesharp);
               thesharp = '';
               dosharps = false;
-              return;
             }
+            return;
           }
           if (thenumber==='4') {
             if (thesharp.length===9) {
@@ -587,15 +587,14 @@
               put(thesharp);
               thesharp = '';
               dosharps = false;
-              return;
             }
+            return;
           }
           if (thesharp.length===7) {
             thenumber = '';
             put(thesharp);
             thesharp = '';
             dosharps = false;
-            return;
           }
           return;
         }
