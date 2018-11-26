@@ -118,7 +118,7 @@
       document.addEventListener("DOMContentLoaded", function(event) {
         function checkInput(e) {
           let notnums = '!@#$%^&*()_+=QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?qwertyuiop[]\\asdfghjkl;\'zxcvbnm,/';
-          if ((notnums.match(e.key)||e.keyCode==13)&&!e.ctrlKey&&!e.unshiftKey) {
+          if ((notnums.match(e.key)||e.keyCode==13)&&!e.ctrlKey&&!e.shiftKey) {
             e.preventDefault();
           }
         }
