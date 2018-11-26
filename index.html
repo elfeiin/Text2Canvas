@@ -271,10 +271,9 @@
       //God knows /I/ couldn't keep track of it all. Yeesh- I mean seriously, you'd expect delete to do its job!
       jlist = {
         list: [],
-        add: function(){ this.list.push([i,0,eval(thenumber)||1]); },
-        remove: function(){ delete this.list[this.list.length-1]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.push(this.list[dd]) } } this.list=nl; },
-        getlast: function(){ if (this.list.length>0) { return this.list[this.list.length-1]; } else { return false } },
-        increasecount: function() { if (this.list.length>0) { this.list[this.list.length-1][1]+=1; } }
+        add: function(){ this.list.shift([i,0,numParse(thenumber)||1]); },
+        remove: function(){ delete this.list[0]; nl=[]; for (dd=0;dd<this.list.length;dd++) { if (this.list[dd]) { nl.shift(this.list[dd]) } } this.list=nl; },
+        increasecount: function() { if (this.list.length>0) { this.list[0][1]+=1; } }
       },
 
       //Initializes virtual starts and ends and mouse position variables.
@@ -398,7 +397,7 @@
       function setStart(a) {
         var tn;
         if (thenumber.length>0) {
-          tn = eval(thenumber)||0;
+          tn = numParse(thenumber)||0;
           thenumber='';
         } else {
           tn = a&&P||p;
@@ -414,7 +413,7 @@
       function setEnd(a) {
         var tn;
         if (thenumber.length>0) {
-          tn = eval(thenumber)||0;
+          tn = numParse(thenumber)||0;
           thenumber='';
         } else {
           tn = a&&(P-mm.vys)||(p-mm.vxs);
@@ -437,6 +436,60 @@
       }
       //End retrieved code.
 
+      function isInString(a,b) {
+        for (let i=0;i<a.length;i++) {
+          if (a[i]===b) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function numParse(a) {
+        let m = []
+        n = '0123456789',
+        s = '+-*/';
+        for (let i=0;i<a.length;i++) {
+          if (isInString(n,a[i])) {
+            if (m.length>0) {
+              if (!isInString(s,m[m.length-1])) {
+                m[m.length-1]+=a[i];
+              } else {
+                m.push(a[i]);
+              }
+            } else {
+              m.push(a[i]);
+            }
+            continue;
+          }
+          if (isInString(s,a[i])) {
+            m.push(a[i]);
+            continue;
+          }
+        }
+        for (let i=0;i<m.length;i++) {
+          if (m[i]==='*') {
+            m[i-1] = Number(m[i-1])*Number(m[i+1]);
+            m.splice(i,2);
+          }
+          if (m[i]==='/') {
+            m[i-1] = Number(m[i-1])/Number(m[i+1]);
+            m.splice(i,2);
+          }
+        }
+        for (let i=0;i<m.length;i++) {
+          if (m[i]==='+') {
+            m[i-1] = Number(m[i-1])+Number(m[i+1]);
+            m.splice(i,2);
+          }
+          if (m[i]==='-') {
+            m[i-1] = Number(m[i-1])-Number(m[i+1]);
+            m.splice(i,2);
+          }
+        }
+        return m[0];
+      }
+
       //Puts pixels on the canvas. a is the color of the pixel(s) being drawn.
       function put(a) {
         if (a===undefined) return;
@@ -447,7 +500,7 @@
           a = jumpcolor('f','c0','00',a);
         }
         makelight = makedark = false;
-        let tn = eval(thenumber)||1;
+        let tn = numParse(thenumber)||1;
         thenumber='';
         for (t=0;t<tn;t++) {
           checkp();
@@ -462,8 +515,8 @@
 
       //Function to move the pointer a units left and b units down. Defaults to one if no number is specified.
       function movep(a,b) {
-        p+=a*(eval(thenumber)||1);
-        P+=b*(eval(thenumber)||1);
+        p+=a*(numParse(thenumber)||1);
+        P+=b*(numParse(thenumber)||1);
         thenumber='';
       }
 
@@ -490,7 +543,7 @@
       //This function controls how loops operate. a is any new loop start we want to add.
       //After that, it checks to see if there is anything in jlist.
       //If not, then it returns.
-      //Otherwise, it increases some number inside jl. jlist.increasecount() always increases the last element's number.
+      //Otherwise, it increases some number inside jl. jlist.increasecount() always increases the first element's number.
       //If jl's count or whatever is less than the max, then it jumps the text reading pointer back to the corresponding loop command.
       //But if not, then oh well, sucks for jl because IT GETS DELETED!!!
       function jump(a) {
@@ -499,7 +552,7 @@
           thenumber = '';
           return;
         }
-        var jl = jlist.getlast();
+        var jl = jlist[0];
         if (!jl) return;
         jlist.increasecount();
         if (jl[1]<jl[2]) {
